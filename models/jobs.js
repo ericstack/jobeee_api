@@ -45,7 +45,7 @@ const jobSchema = new mongoose.Schema({
   },
   industry: {
     type: [String],
-    required: [true,'Please enter industry for this job'],
+    required: [true, "Please enter industry for this job"],
     enum: {
       values: [
         "Business",
@@ -60,7 +60,7 @@ const jobSchema = new mongoose.Schema({
   },
   jobType: {
     type: String,
-    required: [true,'Please enter Job Type for this job'],
+    required: [true, "Please enter Job Type for this job"],
     enum: {
       values: ["Permanent", "Temporary", "Internship"],
       message: "Please select correct options for job type.",
@@ -68,7 +68,7 @@ const jobSchema = new mongoose.Schema({
   },
   minEducation: {
     type: String,
-    required: [true,'Please enter min Education for this job'],
+    required: [true, "Please enter min Education for this job"],
     enum: {
       values: ["Bachelors", "Masters", "PhD"],
       message: "Please select correct options for Education.",
@@ -80,7 +80,7 @@ const jobSchema = new mongoose.Schema({
   },
   experience: {
     type: String,
-    required: [true,'Please enter experience for this job'],
+    required: [true, "Please enter experience for this job"],
     enum: {
       values: [
         "No Experience",
@@ -107,11 +107,10 @@ const jobSchema = new mongoose.Schema({
     type: [Object],
     select: false,
   },
-  user:{
+  user: {
     type: mongoose.Schema.ObjectId,
-    ref:'User',
-    
-  }
+    ref: "User",
+  },
 });
 
 //creating job slug before save
@@ -126,7 +125,7 @@ jobSchema.pre("save", async function (next) {
   const loc = await geoCoder(this.address);
   this.location = {
     type: "Point",
-    coordinates: [loc.geometry['lat'],loc.geometry['lng']],
+    coordinates: [loc.geometry["lat"], loc.geometry["lng"]],
     formattedAddress: loc.formatted,
     city: loc.components["city"],
     state: loc.components["state"],

@@ -4,8 +4,9 @@ const ErrorHandler = require("../utils/errorHandler");
 const catchAsyncErrors = require("../middleware/catchAsyncErrors");
 const APIFilters = require("../utils/apiFilters");
 const path = require("path");
-const fs = require('fs')
+const fs = require("fs");
 
+//get all jobs /api/v1/jobs
 exports.getJobs = catchAsyncErrors(async (req, res, next) => {
   const apiFilters = new APIFilters(Job.find(), req.query)
     .filter()
@@ -22,6 +23,8 @@ exports.getJobs = catchAsyncErrors(async (req, res, next) => {
     data: jobs,
   });
 });
+
+// create new Job / api/v1/job/new
 exports.newJob = catchAsyncErrors(async (req, res, next) => {
   //add user to body
   req.body.user = req.user.id;
@@ -33,16 +36,21 @@ exports.newJob = catchAsyncErrors(async (req, res, next) => {
     data: job,
   });
 });
-// update a Job
+
+// update a Job /api/v1/job/:id
 exports.updateJob = catchAsyncErrors(async (req, res, next) => {
   let job = await Job.findById(req.params.id);
   if (!job) {
     return next(new ErrorHandler("Job not found", 404));
   }
-  console.log(job)
+  console.log(job);
   //check if the user is owner
-  if(job.user.toString() !== req.user.id && req.user.role !== 'admin'){
-    return next(new ErrorHandler(`User (${req.user.id}) is not allowed to update this job`))
+  if (job.user.toString() !== req.user.id && req.user.role !== "admin") {
+    return next(
+      new ErrorHandler(
+        `User (${req.user.id}) is not allowed to update this job`
+      )
+    );
   }
 
   job = await Job.findByIdAndUpdate(req.params.id, req.body, {
@@ -58,24 +66,32 @@ exports.updateJob = catchAsyncErrors(async (req, res, next) => {
   });
 });
 
-//delete job
+//delete job /api/v1/job/:id
 exports.deleteJob = catchAsyncErrors(async (req, res, next) => {
-  let job = await Job.findById(req.params.id).select('+applicantsApplied');
+  let job = await Job.findById(req.params.id).select("+applicantsApplied");
 
   if (!job) {
     return next(new ErrorHandler("Job not found", 404));
   }
 
   //check if the user is owner
-  if(job.user.toString() !== req.user.id && req.user.role !== 'admin'){
-    return next(new ErrorHandler(`User (${req.user.id}) is not allowed to delete this job`))
+  if (job.user.toString() !== req.user.id && req.user.role !== "admin") {
+    return next(
+      new ErrorHandler(
+        `User (${req.user.id}) is not allowed to delete this job`
+      )
+    );
   }
 
-  for(let i=0;i<job.applicantsApplied.length;i++){
-     let filepath = `./public/uploads/${job.applicantsApplied[i].resume}`.replace('\\controllers', '');
-    
-      fs.unlink(filepath, err => {
-        if(err) return console.log(err);
+  for (let i = 0; i < job.applicantsApplied.length; i++) {
+    let filepath =
+      `./public/uploads/${job.applicantsApplied[i].resume}`.replace(
+        "\\controllers",
+        ""
+      );
+
+    fs.unlink(filepath, (err) => {
+      if (err) return console.log(err);
     });
   }
 
@@ -87,7 +103,8 @@ exports.deleteJob = catchAsyncErrors(async (req, res, next) => {
     data: job,
   });
 });
-//single job
+
+//single job /api/v1/job/:id/:slug
 exports.getJob = catchAsyncErrors(async (req, res, next) => {
   const job = await Job.find({
     $and: [{ _id: req.params.id }, { slug: req.params.slug }],
