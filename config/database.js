@@ -1,15 +1,14 @@
-const mongoose = require('mongoose');
+import mongoose from "mongoose";
 
-const connectDatabase = () => {mongoose.connect(process.env.DB_URI,{
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
+const connectDatabase = () => {
+  mongoose
+    .connect(process.env.MONGODB_URI)
+    .then(() => {
+      console.log("Connected to MongoDB");
     })
-    .then(con =>{
-    console.log(`Mongodb Database with host: ${con.connection.host}`);
-    })
-    .catch((error) => {
-        console.error('Error connecting to MongoDB:', error);
+    .catch((err) => {
+      console.error("Failed to connect to MongoDB", err);
     });
-}
+};
 
-module.exports = connectDatabase;
+export default connectDatabase;

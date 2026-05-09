@@ -1,4 +1,4 @@
-const opencage = require("opencage-api-client");
+import opencage from "opencage-api-client";
 
 const geoCoder = function (location) {
   return opencage
@@ -21,4 +21,4 @@ const geoCoder = function (location) {
     });
 };
 
-module.exports = geoCoder;
+export default geoCoder;

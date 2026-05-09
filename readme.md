@@ -6,4 +6,19 @@
 npm i
 ```
 ## Config.env
-Replace all environment variables values with your's 
+Create a `.env` file in the project root with the following variables:
+
+```
+PORT=
+MONGODB_URI=
+NODE_ENV=
+COOKIE_EXPIRES_TIME=
+JWT_SECRET=''
+JWT_EXPIRES_TIME=
+SMTP_HOST=
+SMTP_PORT=
+SMTP_USER=
+SMTP_PASS=
+```
+
+Replace each value with your own configuration.
