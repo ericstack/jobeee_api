@@ -2,7 +2,11 @@ import mongoose from "mongoose";
 
 const connectDatabase = () => {
   mongoose
-    .connect(process.env.MONGODB_URI)
+    .connect(
+      process.env.NODE_ENV === "production"
+        ? process.env.MONGODB_URI_PRO
+        : process.env.MONGODB_URI,
+    )
     .then(() => {
       console.log("Connected to MongoDB");
     })
