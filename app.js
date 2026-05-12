@@ -78,9 +78,9 @@ import auth from "./routes/auth.js";
 import user from "./routes/user.js";
 
 app.use("/", express.static(__dirname + "/public"));
-app.use("/api/v1", jobs);
-app.use("/api/v1", auth);
-app.use("/api/v1", user);
+app.use("/api/jobs/v1", jobs);
+app.use("/api/auth/v1", auth);
+app.use("/api/user/v1", user);
 //unhandled routes
 app.all("*", (req, res, next) => {
   next(new ErrorHandler(`${req.originalUrl} route not found`, 404));

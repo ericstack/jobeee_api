@@ -69,7 +69,7 @@ export const forgotPassword = catchAsyncErrors(async (req, res, next) => {
 
   // Get reset token
   const resetToken = user.getResetPasswordToken();
-
+  console.log(resetToken);
   await user.save({ validateBeforeSave: false });
 
   //Create reset password URL
@@ -79,11 +79,12 @@ export const forgotPassword = catchAsyncErrors(async (req, res, next) => {
     \n\n if you have not request this, then ignore.`;
 
   try {
-    await sendEmail({
-      email: user.email,
-      subject: "Jobbee Password reset email",
-      message,
-    });
+    // await sendEmail({
+    //   email: user.email,
+    //   subject: "Jobbee Password reset email",
+    //   message,
+    // });
+
     res.status(200).json({
       success: true,
       message: `Email Sent successfully to: ${user.email}`,
@@ -126,6 +127,16 @@ export const resetPassword = catchAsyncErrors(async (req, res, next) => {
 
   sendToken(user, 200, res);
 });
+// Get currently logged in user details => /api/v1/me
+export const getUserProfile = catchAsyncErrors(async (req, res, next) => {
+  const user = await User.findById(req.user.id);
+
+  res.status(200).json({
+    success: true,
+    user,
+  });
+});
+
 // Logout user   =>   /api/v1/logout
 export const logout = catchAsyncErrors(async (req, res, next) => {
   res.cookie("token", "none", {

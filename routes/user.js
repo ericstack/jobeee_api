@@ -14,7 +14,7 @@ import { isAuthenticatedUser, authorizeRoles } from "../middleware/auth.js";
 
 router.use(isAuthenticatedUser);
 
-router.route("/me").get(getUserProfile);
+router.route("/userProfile").get(getUserProfile);
 router.route("/jobs/applied").get(authorizeRoles("user"), getAppliedJobs);
 router
   .route("/jobs/published")
