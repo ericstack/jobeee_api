@@ -54,11 +54,11 @@ userSchema.pre("save", async function (next) {
 userSchema.methods.getJwtToken = async function () {
   const secret = new TextEncoder().encode(process.env.JWT_SECRET);
   const expiresIn = process.env.JWT_EXPIRES_TIME;
-  const expiration = /^[0-9]+$/.test(expiresIn) ? `${expiresIn}s` : expiresIn;
+  const expiration = /^[0-9]+$/.test(expiresIn) ? `${expiresIn}` : expiresIn;
 
   return await new SignJWT({ id: this._id.toString() })
     .setProtectedHeader({ alg: "HS256" })
-    .setExpirationTime(expiration)
+    .setExpirationTime("7d")
     .sign(secret);
 };
 

@@ -55,6 +55,7 @@ export const loginUser = catchAsyncErrors(async (req, res, next) => {
   //     success:true,
   //     token
   // })
+  const usertoken = await user.getJwtToken();
 
   await sendToken(user, 200, res);
 });
@@ -69,7 +70,6 @@ export const forgotPassword = catchAsyncErrors(async (req, res, next) => {
 
   // Get reset token
   const resetToken = user.getResetPasswordToken();
-  console.log(resetToken);
   await user.save({ validateBeforeSave: false });
 
   //Create reset password URL
@@ -133,6 +133,7 @@ export const getUserProfile = catchAsyncErrors(async (req, res, next) => {
 
   res.status(200).json({
     success: true,
+    token: await user.getJwtToken(),
     user,
   });
 });

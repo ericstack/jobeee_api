@@ -43,7 +43,7 @@ export const updateJob = catchAsyncErrors(async (req, res, next) => {
   if (!job) {
     return next(new ErrorHandler("Job not found", 404));
   }
-  console.log(job);
+
   //check if the user is owner
   if (job.user.toString() !== req.user.id && req.user.role !== "admin") {
     return next(
