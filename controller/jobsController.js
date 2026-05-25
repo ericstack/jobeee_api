@@ -1,13 +1,13 @@
-const Job = require("../models/jobs");
-const geoCoder = require("../utils/geocoder");
-const ErrorHandler = require("../utils/errorHandler");
-const catchAsyncErrors = require("../middleware/catchAsyncErrors");
-const APIFilters = require("../utils/apiFilters");
-const path = require("path");
-const fs = require("fs");
+import Job from "../models/jobs.js";
+import geoCoder from "../utils/geocoder.js";
+import ErrorHandler from "../utils/errorHandler.js";
+import catchAsyncErrors from "../middleware/catchAsyncErrors.js";
+import APIFilters from "../utils/apiFilters.js";
+import path from "path";
+import fs from "fs";
 
 //get all jobs /api/v1/jobs
-exports.getJobs = catchAsyncErrors(async (req, res, next) => {
+export const getJobs = catchAsyncErrors(async (req, res, next) => {
   const apiFilters = new APIFilters(Job.find(), req.query)
     .filter()
     .sort()
@@ -25,7 +25,7 @@ exports.getJobs = catchAsyncErrors(async (req, res, next) => {
 });
 
 // create new Job / api/v1/job/new
-exports.newJob = catchAsyncErrors(async (req, res, next) => {
+export const newJob = catchAsyncErrors(async (req, res, next) => {
   //add user to body
   req.body.user = req.user.id;
   const job = await Job.create(req.body);
@@ -38,18 +38,18 @@ exports.newJob = catchAsyncErrors(async (req, res, next) => {
 });
 
 // update a Job /api/v1/job/:id
-exports.updateJob = catchAsyncErrors(async (req, res, next) => {
+export const updateJob = catchAsyncErrors(async (req, res, next) => {
   let job = await Job.findById(req.params.id);
   if (!job) {
     return next(new ErrorHandler("Job not found", 404));
   }
-  console.log(job);
+
   //check if the user is owner
   if (job.user.toString() !== req.user.id && req.user.role !== "admin") {
     return next(
       new ErrorHandler(
-        `User (${req.user.id}) is not allowed to update this job`
-      )
+        `User (${req.user.id}) is not allowed to update this job`,
+      ),
     );
   }
 
@@ -67,7 +67,7 @@ exports.updateJob = catchAsyncErrors(async (req, res, next) => {
 });
 
 //delete job /api/v1/job/:id
-exports.deleteJob = catchAsyncErrors(async (req, res, next) => {
+export const deleteJob = catchAsyncErrors(async (req, res, next) => {
   let job = await Job.findById(req.params.id).select("+applicantsApplied");
 
   if (!job) {
@@ -78,8 +78,8 @@ exports.deleteJob = catchAsyncErrors(async (req, res, next) => {
   if (job.user.toString() !== req.user.id && req.user.role !== "admin") {
     return next(
       new ErrorHandler(
-        `User (${req.user.id}) is not allowed to delete this job`
-      )
+        `User (${req.user.id}) is not allowed to delete this job`,
+      ),
     );
   }
 
@@ -87,7 +87,7 @@ exports.deleteJob = catchAsyncErrors(async (req, res, next) => {
     let filepath =
       `./public/uploads/${job.applicantsApplied[i].resume}`.replace(
         "\\controllers",
-        ""
+        "",
       );
 
     fs.unlink(filepath, (err) => {
@@ -105,7 +105,7 @@ exports.deleteJob = catchAsyncErrors(async (req, res, next) => {
 });
 
 //single job /api/v1/job/:id/:slug
-exports.getJob = catchAsyncErrors(async (req, res, next) => {
+export const getJob = catchAsyncErrors(async (req, res, next) => {
   const job = await Job.find({
     $and: [{ _id: req.params.id }, { slug: req.params.slug }],
   }).populate({
@@ -125,7 +125,7 @@ exports.getJob = catchAsyncErrors(async (req, res, next) => {
 });
 
 //Search jobs within raduis => /api/v1/jobs/:zipcode/:distance
-exports.getJobsInRadius = catchAsyncErrors(async (req, res, next) => {
+export const getJobsInRadius = catchAsyncErrors(async (req, res, next) => {
   const { zipcode, distance } = req.params;
 
   const loc = await geoCoder(zipcode);
@@ -148,7 +148,7 @@ exports.getJobsInRadius = catchAsyncErrors(async (req, res, next) => {
 });
 
 // get stats about a topic(job)
-exports.jobStats = catchAsyncErrors(async (req, res, next) => {
+export const jobStats = catchAsyncErrors(async (req, res, next) => {
   const stats = await Job.aggregate([
     {
       $match: { $text: { $search: '"' + req.params.topic + '"' } },
@@ -174,7 +174,7 @@ exports.jobStats = catchAsyncErrors(async (req, res, next) => {
   });
 });
 //apply to job using resume => /api/v1/job/:id/apply
-exports.applyJob = catchAsyncErrors(async (req, res, next) => {
+export const applyJob = catchAsyncErrors(async (req, res, next) => {
   let job = await Job.findById(req.params.id).select("+applicantsApplied");
 
   if (!job) {
@@ -184,7 +184,7 @@ exports.applyJob = catchAsyncErrors(async (req, res, next) => {
   //Check that if job last date has been passed or not
   if (job.lastDate < new Date(Date.now())) {
     return next(
-      new ErrorHandler("You can not apply to this job. Date is over", 400)
+      new ErrorHandler("You can not apply to this job. Date is over", 400),
     );
   }
 
@@ -192,7 +192,7 @@ exports.applyJob = catchAsyncErrors(async (req, res, next) => {
   for (let i = 0; i < job.applicantsApplied.length; i++) {
     if (job.applicantsApplied[i].id === req.user.id) {
       return next(
-        new ErrorHandler("You have already applied to this job", 400)
+        new ErrorHandler("You have already applied to this job", 400),
       );
     }
   }
@@ -238,7 +238,7 @@ exports.applyJob = catchAsyncErrors(async (req, res, next) => {
         new: true,
         runValidators: true,
         useFindAndModify: false,
-      }
+      },
     );
 
     res.status(200).json({

@@ -1,0 +1,803 @@
+{
+  "info": {
+    "_postman_id": "c47f5570-ebd9-47e3-9db9-5f989b0790e5",
+    "name": "Jobbeee",
+    "description": "Jobbeee API provides a standardized way to manage job listings, applications, and company profiles. Built using NodeJS with features like: Job CRUD, User Authentication etc.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "8195696"
+  },
+  "item": [
+    {
+      "name": "Jobs",
+      "item": [
+        {
+          "name": "Create New Job",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ODMxMjk1OTFhNjE3OGU3Y2IyYjRmNCIsImlhdCI6MTczNjY1MzI1NSwiZXhwIjoxNzM3MjU4MDU1fQ.1o7htYJRtoyv9-tpQBWbKfxXvOhobG3u2UHmMhUIVjk",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n   \"title\":\"Software Developer\",\r\n    \"description\":\"Must be a full-stack developer, able to implement everything in a MEAN…\",\r\n    \"email\":\"employeer1@gmail.com\",\r\n    \"address\":\"200 Olympic Dr, Stafford, VA, 22554\",\r\n    \"company\":\"Knack Ltd\",\r\n    \"industry\":[\"Information Technology\"],\r\n    \"jobType\":\"Permanent\",\r\n    \"minEducation\":\"Bachelors\",\r\n    \"positions\":2,\r\n    \"experience\":\"No Experience\",\r\n    \"salary\":\"155000\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{DOMAIN}}/api/v1/job/new",
+              "host": [
+                "{{DOMAIN}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "job",
+                "new"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Jobs",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"title\": \"Senior Node Developer \"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{DOMAIN}}/api/v1/job/67dbd0f29462baf8e85a9977",
+              "host": [
+                "{{DOMAIN}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "job",
+                "67dbd0f29462baf8e85a9977"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Job Range",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{DOMAIN}}/api/v1/jobs/22554/25",
+              "host": [
+                "{{DOMAIN}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "jobs",
+                "22554",
+                "25"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Jobs",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{DOMAIN}}api/v1/jobs",
+              "host": [
+                "{{DOMAIN}}api"
+              ],
+              "path": [
+                "v1",
+                "jobs"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Jobs",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"title\": \"Senior Node Developer \"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{DOMAIN}}/api/v1/job/67c676278a3a2d546a6bdfe1",
+              "host": [
+                "{{DOMAIN}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "job",
+                "67c676278a3a2d546a6bdfe1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Search job",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{DOMAIN}}/api/v1/job/66ff5af8e353414c2404729f/node-developers",
+              "host": [
+                "{{DOMAIN}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "job",
+                "66ff5af8e353414c2404729f",
+                "node-developers"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Job Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{DOMAIN}}/api/v1/stats/node",
+              "host": [
+                "{{DOMAIN}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "stats",
+                "node"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Single Job",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{DOMAIN}}/api/v1/job/67c66f812b5dda0c11d16ec9/c++-developer",
+              "host": [
+                "{{DOMAIN}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "job",
+                "67c66f812b5dda0c11d16ec9",
+                "c++-developer"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "User Register",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\":\"jErd\",\r\n    \"email\":\"jjedjj@gmail.com\",\r\n    \"password\":\"12345678\",\r\n    \"role\":\"admin\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{DOMAIN}}api/v1/register",
+              "host": [
+                "{{DOMAIN}}api"
+              ],
+              "path": [
+                "v1",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "User Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.environment.set(\"token\",pm.response.json().token)"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    //\"email\":\"jjedj@gmail.com\",\r\n    //\"password\":\"12345678\"\r\n    \"email\":\"jjedjj@gmail.com\",\r\n    \"password\":\"12345678\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{DOMAIN}}api/v1/login",
+              "host": [
+                "{{DOMAIN}}api"
+              ],
+              "path": [
+                "v1",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Send Reset Password",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\":\"jjedjaucian@gmail.com\"\r\n\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{DOMAIN}}/api/v1/password/forgot",
+              "host": [
+                "{{DOMAIN}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "password",
+                "forgot"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Reset New Password",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"password\":\"temp123456\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{DOMAIN}}api/v1/password/reset/4bfbb0458272d26a7e5aa102c1ab7d9a2ce1dc15",
+              "host": [
+                "{{DOMAIN}}api"
+              ],
+              "path": [
+                "v1",
+                "password",
+                "reset",
+                "4bfbb0458272d26a7e5aa102c1ab7d9a2ce1dc15"
+              ]
+            },
+            "description": "password reset token"
+          },
+          "response": []
+        },
+        {
+          "name": "User Logout",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.environment.set(\"token\",pm.response.json().token)"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{DOMAIN}}/api/v1/logout",
+              "host": [
+                "{{DOMAIN}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "logout"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "description": "Route related to authentication"
+    },
+    {
+      "name": "User",
+      "item": [
+        {
+          "name": "Profile",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{DOMAIN}}/api/v1/me",
+              "host": [
+                "{{DOMAIN}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update user password",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n     \"currentPassword\":\"temp1234567\",\r\n     \"newPassword\":\"temp12345678\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{DOMAIN}}/api/v1/password/update",
+              "host": [
+                "{{DOMAIN}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "password",
+                "update"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update User Data",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n     \"name\":\"Eric\",\r\n     \"email\":\"ericjaucian@gmail.com\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{DOMAIN}}/api/v1/me/update",
+              "host": [
+                "{{DOMAIN}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "me",
+                "update"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete User Data",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n     \"name\":\"jErd\",\r\n    \"email\":\"jjedj@gmail.com\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{DOMAIN}}/api/v1/me/delete",
+              "host": [
+                "{{DOMAIN}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "me",
+                "delete"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Apply to job with resume",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "uuid": "16d76d4c-1e1b-4588-8999-45323e7cd18f",
+                  "src": "/C:/Users/Bah_PC/Documents/Eric Paul Jaucian CV.pdf"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{DOMAIN}}/api/v1/job/67c676278a3a2d546a6bdfe1/apply",
+              "host": [
+                "{{DOMAIN}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "job",
+                "67c676278a3a2d546a6bdfe1",
+                "apply"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Show all jobs Applied",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{DOMAIN}}/api/v1/jobs/applied",
+              "host": [
+                "{{DOMAIN}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "jobs",
+                "applied"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Show all jobs published",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{DOMAIN}}/api/v1/jobs/published",
+              "host": [
+                "{{DOMAIN}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "jobs",
+                "published"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Users",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{DOMAIN}}/api/v1/users",
+              "host": [
+                "{{DOMAIN}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete User by Admin",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{DOMAIN}}/api/v1/users/67e15f4cd8d70256fca5a368",
+              "host": [
+                "{{DOMAIN}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "67e15f4cd8d70256fca5a368"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
