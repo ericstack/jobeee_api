@@ -20,7 +20,7 @@ export const getJobs = catchAsyncErrors(async (req, res, next) => {
   res.status(200).json({
     success: true,
     results: jobs.length,
-    data: jobs,
+    jobs: jobs,
   });
 });
 
@@ -104,10 +104,10 @@ export const deleteJob = catchAsyncErrors(async (req, res, next) => {
   });
 });
 
-//single job /api/v1/job/:id/:slug
+//single job /api/v1/job/:id
 export const getJob = catchAsyncErrors(async (req, res, next) => {
   const job = await Job.find({
-    $and: [{ _id: req.params.id }, { slug: req.params.slug }],
+    $and: [{ _id: req.params.id }],
   }).populate({
     path: "user",
     select: "name",
@@ -120,7 +120,7 @@ export const getJob = catchAsyncErrors(async (req, res, next) => {
   res.status(200).json({
     success: true,
     message: "Job is found",
-    data: job,
+    jobs: job,
   });
 });
 

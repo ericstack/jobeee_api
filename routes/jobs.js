@@ -14,7 +14,7 @@ import {
 import { isAuthenticatedUser, authorizeRoles } from "../middleware/auth.js";
 
 router.route("/jobs").get(getJobs);
-router.route("/job/:id/:slug").get(getJob);
+router.route("/job/:id").get(getJob);
 router.route("/jobs/:zipcode/:distance").get(getJobsInRadius);
 router.route("/stats/:topic").get(jobStats);
 router
