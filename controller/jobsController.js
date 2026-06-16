@@ -270,7 +270,9 @@ export const applyJob = catchAsyncErrors(async (req, res, next) => {
   file.name = `${req.user.name.replace(" ", "_")}_${job._id}${
     path.parse(file.name).ext
   }`;
-  file.mv(`${process.env.UPLOAD_PATH}/${file.name}`, async (err) => {
+  const uploadPath = process.env.UPLOAD_PATH || "./public/uploads";
+  fs.mkdirSync(uploadPath, { recursive: true }); // ensure target dir exists
+  file.mv(path.join(uploadPath, file.name), async (err) => {
     if (err) {
       console.log(err);
       return next(new ErrorHandler("Resume upload failed.", 500));

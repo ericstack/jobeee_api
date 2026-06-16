@@ -56,8 +56,10 @@ export const updateUser = catchAsyncErrors(async (req, res, next) => {
 
     //unique filename per upload so the URL changes — avoids stale browser cache
     photo.name = `avatar_${req.user.id}_${Date.now()}${path.parse(photo.name).ext}`;
+    const uploadPath = process.env.UPLOAD_PATH || "./public/uploads";
+    fs.mkdirSync(uploadPath, { recursive: true }); // ensure target dir exists
     try {
-      await photo.mv(`${process.env.UPLOAD_PATH}/${photo.name}`);
+      await photo.mv(path.join(uploadPath, photo.name));
     } catch (err) {
       console.log(err);
       return next(new ErrorHandler("Profile photo upload failed.", 500));
@@ -66,7 +68,7 @@ export const updateUser = catchAsyncErrors(async (req, res, next) => {
     //best-effort cleanup of the previous avatar file
     const current = await User.findById(req.user.id).select("avatar");
     if (current?.avatar && current.avatar !== photo.name) {
-      fs.unlink(path.join(process.env.UPLOAD_PATH, current.avatar), () => {});
+      fs.unlink(path.join(uploadPath, current.avatar), () => {});
     }
 
     newUserData.avatar = photo.name;
