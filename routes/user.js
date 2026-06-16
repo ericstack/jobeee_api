@@ -7,6 +7,9 @@ import {
   deleteUser,
   getAppliedJobs,
   getPublishedJobs,
+  saveJob,
+  unsaveJob,
+  getSavedJobs,
   getUsers,
   deleteUserAdmin,
 } from "../controller/userController.js";
@@ -19,6 +22,8 @@ router.route("/jobs/applied").get(authorizeRoles("user"), getAppliedJobs);
 router
   .route("/jobs/published")
   .get(authorizeRoles("employer", "admin"), getPublishedJobs);
+router.route("/jobs/saved").get(getSavedJobs);
+router.route("/jobs/saved/:jobId").put(saveJob).delete(unsaveJob);
 router.route("/password/update").put(updatePassword);
 router.route("/me/update").put(updateUser);
 router.route("/me/delete").delete(deleteUser);

@@ -3,6 +3,7 @@ import catchAsyncErrors from "../middleware/catchAsyncErrors.js";
 import ErrorHandler from "../utils/errorHandler.js";
 import sendToken from "../utils/jwtToken.js";
 import fs from "fs";
+import path from "path";
 import Job from "../models/jobs.js";
 import jobs from "../models/jobs.js";
 import APIFilter from "../utils/apiFilters.js";
@@ -22,10 +23,54 @@ export const getUserProfile = catchAsyncErrors(async (req, res, next) => {
 
 //update current user data => /api/v1/me/update
 export const updateUser = catchAsyncErrors(async (req, res, next) => {
-  const newUserData = {
-    name: req.body.name,
-    email: req.body.email,
-  };
+  // only update fields the client actually sent
+  const newUserData = {};
+  ["name", "email", "phone", "headline"].forEach((f) => {
+    if (req.body[f] !== undefined) newUserData[f] = req.body[f];
+  });
+  if (req.body.skills !== undefined) {
+    newUserData.skills = Array.isArray(req.body.skills)
+      ? req.body.skills
+      : String(req.body.skills)
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean);
+  }
+
+  //handle profile photo upload (optional)
+  if (req.files && req.files.photo) {
+    const photo = req.files.photo;
+
+    //check file type
+    const supportedFiles = /\.(jpg|jpeg|png)$/i;
+    if (!supportedFiles.test(path.extname(photo.name))) {
+      return next(
+        new ErrorHandler("Please upload an image file (jpg, jpeg, png).", 400),
+      );
+    }
+
+    //check file size
+    if (photo.size > process.env.MAX_FILE_SIZE) {
+      return next(new ErrorHandler("Please upload an image less than 2MB.", 400));
+    }
+
+    //unique filename per upload so the URL changes — avoids stale browser cache
+    photo.name = `avatar_${req.user.id}_${Date.now()}${path.parse(photo.name).ext}`;
+    try {
+      await photo.mv(`${process.env.UPLOAD_PATH}/${photo.name}`);
+    } catch (err) {
+      console.log(err);
+      return next(new ErrorHandler("Profile photo upload failed.", 500));
+    }
+
+    //best-effort cleanup of the previous avatar file
+    const current = await User.findById(req.user.id).select("avatar");
+    if (current?.avatar && current.avatar !== photo.name) {
+      fs.unlink(path.join(process.env.UPLOAD_PATH, current.avatar), () => {});
+    }
+
+    newUserData.avatar = photo.name;
+  }
 
   const user = await User.findByIdAndUpdate(req.user.id, newUserData, {
     new: true,
@@ -78,16 +123,47 @@ export const getPublishedJobs = catchAsyncErrors(async (req, res, next) => {
   });
 });
 
+// Save (bookmark) a job => PUT /api/user/v1/jobs/saved/:jobId
+export const saveJob = catchAsyncErrors(async (req, res, next) => {
+  const job = await Job.findById(req.params.jobId);
+  if (!job) {
+    return next(new ErrorHandler("Job not found", 404));
+  }
+  // $addToSet keeps it idempotent (no duplicates)
+  await User.findByIdAndUpdate(req.user.id, {
+    $addToSet: { savedJobs: req.params.jobId },
+  });
+  res.status(200).json({ success: true, message: "Job saved" });
+});
+
+// Remove a saved job => DELETE /api/user/v1/jobs/saved/:jobId
+export const unsaveJob = catchAsyncErrors(async (req, res, next) => {
+  await User.findByIdAndUpdate(req.user.id, {
+    $pull: { savedJobs: req.params.jobId },
+  });
+  res.status(200).json({ success: true, message: "Job removed from saved" });
+});
+
+// List saved jobs => GET /api/user/v1/jobs/saved
+export const getSavedJobs = catchAsyncErrors(async (req, res, next) => {
+  const user = await User.findById(req.user.id).populate("savedJobs");
+  const jobs = (user.savedJobs || []).filter(Boolean); // drop refs to deleted jobs
+  res.status(200).json({ success: true, results: jobs.length, jobs });
+});
+
 // delete current user => /api/v1/me/delete
 export const deleteUser = catchAsyncErrors(async (req, res, next) => {
   //console.log(req.user)
-  deleteUserData(req.user.id, req.user.role);
+  await deleteUserData(req.user.id, req.user.role);
 
   const user = await User.findByIdAndDelete(req.user.id);
 
+  const isProd = process.env.NODE_ENV === "production";
   res.cookie("token", "none", {
     expires: new Date(Date.now()),
     httpOnly: true,
+    secure: isProd,
+    sameSite: isProd ? "none" : "lax",
   });
 
   res.status(200).json({
@@ -120,11 +196,11 @@ export const deleteUserAdmin = catchAsyncErrors(async (req, res, next) => {
 
   if (!user) {
     return next(
-      new ErrorHandler("User not found with id: `${req.params.id}`", 404),
+      new ErrorHandler(`User not found with id: ${req.params.id}`, 404),
     );
   }
 
-  deleteUserData(user.id, user.role);
+  await deleteUserData(user.id, user.role);
   await user.deleteOne();
 
   res.status(200).json({
@@ -135,7 +211,7 @@ export const deleteUserAdmin = catchAsyncErrors(async (req, res, next) => {
 
 // delete current userdata
 async function deleteUserData(user, role) {
-  if (role === "employeer") {
+  if (role === "employer") {
     await Job.deleteMany({ user: user });
   }
 
@@ -144,21 +220,23 @@ async function deleteUserData(user, role) {
       "+applicantsApplied",
     );
 
+    const uploadPath = process.env.UPLOAD_PATH || "./public/uploads";
+
     for (let i = 0; i < appliedJobs.length; i++) {
-      let obj = appliedJobs[i].applicantsApplied.find((o) => o.id === user);
+      const obj = appliedJobs[i].applicantsApplied.find((o) => o.id === user);
+      if (!obj) continue;
 
-      let filepath = `./public/uploads/${obj.resume}`.replace(
-        "\\controllers",
-        "",
-      );
+      if (obj.resume) {
+        const filepath = path.join(uploadPath, obj.resume);
+        fs.unlink(filepath, (err) => {
+          if (err) return console.log(err);
+        });
+      }
 
-      fs.unlink(filepath, (err) => {
-        if (err) return console.log(err);
-      });
-
-      appliedJobs[i].applicantsApplied.splice(
-        appliedJobs[i].applicantsApplied.indexOf(obj.id),
-      );
+      const index = appliedJobs[i].applicantsApplied.indexOf(obj);
+      if (index !== -1) {
+        appliedJobs[i].applicantsApplied.splice(index, 1);
+      }
 
       await appliedJobs[i].save();
     }

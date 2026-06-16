@@ -3,6 +3,32 @@ import validator from "validator";
 import slugify from "slugify";
 import geoCoder from "../utils/geocoder.js";
 
+// Sub-schema for a single applicant on a job.
+// id is kept as a String to stay compatible with existing queries/comparisons
+// (req.user.id is a hex string; applyJob/getAppliedJobs compare against it directly).
+const applicantSchema = new mongoose.Schema(
+  {
+    id: String,
+    resume: String,
+    coverLetter: String,
+    status: {
+      type: String,
+      enum: {
+        values: ["pending", "shortlisted", "interview", "hired", "rejected"],
+        message: "Please select a correct application status",
+      },
+      default: "pending",
+    },
+    appliedAt: {
+      type: Date,
+      default: Date.now,
+    },
+    // when the status was last changed
+    statusUpdatedAt: Date,
+  },
+  { _id: false },
+);
+
 const jobSchema = new mongoose.Schema({
   title: {
     type: String,
@@ -95,6 +121,10 @@ const jobSchema = new mongoose.Schema({
     type: Number,
     required: [true, "Please enter expected salary for this job."],
   },
+  isActive: {
+    type: Boolean,
+    default: true,
+  },
   postingDate: {
     type: Date,
     default: Date.now,
@@ -104,7 +134,7 @@ const jobSchema = new mongoose.Schema({
     default: new Date().setDate(new Date().getDate() + 7),
   },
   applicantsApplied: {
-    type: [Object],
+    type: [applicantSchema],
     select: false,
   },
   user: {
@@ -112,6 +142,12 @@ const jobSchema = new mongoose.Schema({
     ref: "User",
   },
 });
+
+// createdAt / updatedAt
+jobSchema.set("timestamps", true);
+
+// text index so $text search works (used by jobStats and APIFilters.searchByQuery)
+jobSchema.index({ title: "text", description: "text" });
 
 //creating job slug before save
 jobSchema.pre("save", function (next) {
@@ -125,7 +161,7 @@ jobSchema.pre("save", async function (next) {
   const loc = await geoCoder(this.address);
   this.location = {
     type: "Point",
-    coordinates: [loc.geometry["lat"], loc.geometry["lng"]],
+    coordinates: [loc.geometry["lng"], loc.geometry["lat"]],
     formattedAddress: loc.formatted,
     city: loc.components["city"],
     state: loc.components["state"],
