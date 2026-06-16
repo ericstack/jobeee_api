@@ -2,10 +2,11 @@ import opencage from "opencage-api-client";
 
 const geoCoder = function (location) {
   return opencage
-    .geocode({ q: location, language: "fr" })
+    .geocode({ q: location, language: process.env.GEOCODER_LANGUAGE || "en" })
     .then((data) => {
       if (data.status.code === 200 && data.results.length > 0) {
-        const place = data.results[1];
+        // use the top match; [1] crashes when only one result is returned
+        const place = data.results[0];
         return place;
       } else {
         console.log("status", data.status.message);

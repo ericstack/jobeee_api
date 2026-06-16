@@ -7,7 +7,7 @@ import fileUpload from "express-fileupload";
 import { Buffer } from "buffer";
 
 //config env
-// dotenv.config({ path: ".env" });
+dotenv.config({ path: ".env" });
 
 import connectDatabase from "./config/database.js";
 import errorMiddleware from "./middleware/errors.js";
@@ -28,7 +28,8 @@ const __dirname = dirname(__filename);
 global.SlowBuffer = Buffer;
 //handling uncaught exception
 process.on("uncaughtException", (err) => {
-  console.log("Shutting down the server due to  uncaught exception");
+  console.error(`Uncaught exception: ${err.stack || err.message || err}`);
+  console.log("Shutting down the server due to uncaught exception");
   process.exit(1);
 });
 
@@ -38,10 +39,13 @@ connectDatabase();
 //bodyparser
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use(express.static("public"));
-
-//security header
-app.use(helmet());
+//security header — allow uploaded assets (avatars/resumes) to be embedded by the
+//frontend on a different origin (single static mount lives below, after helmet)
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+  }),
+);
 
 //bodyparse
 app.use(express.json());
@@ -69,8 +73,17 @@ const limiter = rateLimit({
 
 app.use(limiter);
 
-//cors
-app.use(cors());
+//cors — restrict to configured frontend origins (comma-separated env)
+const allowedOrigins = (process.env.ALLOWED_ORIGINS || "http://localhost:5173")
+  .split(",")
+  .map((o) => o.trim())
+  .filter(Boolean);
+app.use(
+  cors({
+    origin: allowedOrigins,
+    credentials: true,
+  }),
+);
 
 //routes
 import jobs from "./routes/jobs.js";

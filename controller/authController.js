@@ -72,22 +72,22 @@ export const forgotPassword = catchAsyncErrors(async (req, res, next) => {
   const resetToken = user.getResetPasswordToken();
   await user.save({ validateBeforeSave: false });
 
-  //Create reset password URL
-  const resetUrl = `${req.protocol}://${req.get("host")}/api/v1/password/reset/${resetToken}`;
+  //Create reset password URL (use configured public origin when available)
+  const origin = process.env.APP_URL || `${req.protocol}://${req.get("host")}`;
+  const resetUrl = `${origin.replace(/\/$/, "")}/api/auth/v1/password/reset/${resetToken}`;
 
-  const message = `Your password reset link is as follow:\n\n${resetUrl} 
-    \n\n if you have not request this, then ignore.`;
+  const message = `Your password reset link is as follows:\n\n${resetUrl}\n\nIf you did not request this, please ignore this email.`;
 
   try {
-    // await sendEmail({
-    //   email: user.email,
-    //   subject: "Jobbee Password reset email",
-    //   message,
-    // });
+    await sendEmail({
+      email: user.email,
+      subject: "Jobeee Password Recovery",
+      message,
+    });
 
     res.status(200).json({
       success: true,
-      message: `Email Sent successfully to: ${user.email}`,
+      message: `Email sent successfully to: ${user.email}`,
     });
   } catch (error) {
     user.resetPasswordToken = undefined;
@@ -95,7 +95,7 @@ export const forgotPassword = catchAsyncErrors(async (req, res, next) => {
 
     await user.save({ validateBeforeSave: false });
 
-    return next(new ErrorHandler("Email is not sent."), 500);
+    return next(new ErrorHandler("Email could not be sent", 500));
   }
 });
 //Reset Password => /api/v1/password/reset/:token
@@ -113,8 +113,14 @@ export const resetPassword = catchAsyncErrors(async (req, res, next) => {
   });
   if (!user) {
     return next(
-      new ErrorHandler("Password reset token is invalid or has expired"),
-      400,
+      new ErrorHandler("Password reset token is invalid or has expired", 400),
+    );
+  }
+
+  //require a sufficiently long new password (mirrors the model rule)
+  if (!req.body.password || req.body.password.length < 8) {
+    return next(
+      new ErrorHandler("Password must be at least 8 characters long", 400),
     );
   }
 
@@ -140,9 +146,12 @@ export const getUserProfile = catchAsyncErrors(async (req, res, next) => {
 
 // Logout user   =>   /api/v1/logout
 export const logout = catchAsyncErrors(async (req, res, next) => {
+  const isProd = process.env.NODE_ENV === "production";
   res.cookie("token", "none", {
     expires: new Date(Date.now()),
     httpOnly: true,
+    secure: isProd,
+    sameSite: isProd ? "none" : "lax",
   });
 
   res.status(200).json({

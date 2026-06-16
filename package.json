@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "start": "export NODE_ENV=production && nodemon app.js",
-    "dev": "nodemon app.js"
+    "dev": "nodemon app.js",
+    "test": "node --test"
   },
   "author": "me",
   "license": "ISC",

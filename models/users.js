@@ -30,6 +30,34 @@ const userSchema = new mongoose.Schema(
       minlength: [8, "Your password must be at least 8 characters long"],
       select: false,
     },
+    avatar: {
+      type: String,
+      default: "",
+    },
+    phone: {
+      type: String,
+      default: "",
+    },
+    headline: {
+      type: String,
+      maxlength: [120, "Headline cannot exceed 120 characters"],
+      default: "",
+    },
+    skills: {
+      type: [String],
+      default: [],
+    },
+    isActive: {
+      type: Boolean,
+      default: true,
+    },
+    // jobs this user has bookmarked
+    savedJobs: [
+      {
+        type: mongoose.Schema.ObjectId,
+        ref: "Job",
+      },
+    ],
     createdAt: {
       type: Date,
       default: Date.now,
@@ -38,16 +66,20 @@ const userSchema = new mongoose.Schema(
     resetPasswordExpire: Date,
   },
   {
+    timestamps: true,
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
   },
 );
 
 userSchema.pre("save", async function (next) {
+  // only (re)hash when the password actually changed — otherwise saving a doc
+  // (e.g. storing a reset token) would re-hash the existing hash and lock the user out
   if (!this.isModified("password")) {
-    next();
+    return next();
   }
   this.password = await bcrypt.hash(this.password, 10);
+  next();
 });
 
 //return jwt
