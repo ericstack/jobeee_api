@@ -156,18 +156,27 @@ jobSchema.pre("save", function (next) {
   next();
 });
 
-//Setting up location
+//Setting up location — resilient: if geocoding is unavailable (bad/missing key,
+//rate limit, network), save the job WITHOUT a location instead of crashing.
 jobSchema.pre("save", async function (next) {
-  const loc = await geoCoder(this.address);
-  this.location = {
-    type: "Point",
-    coordinates: [loc.geometry["lng"], loc.geometry["lat"]],
-    formattedAddress: loc.formatted,
-    city: loc.components["city"],
-    state: loc.components["state"],
-    zipcode: loc.components["postcode"],
-    country: loc.components["country_code"],
-  };
+  try {
+    const loc = await geoCoder(this.address);
+    if (loc && loc.geometry) {
+      this.location = {
+        type: "Point",
+        coordinates: [loc.geometry.lng, loc.geometry.lat],
+        formattedAddress: loc.formatted,
+        city: loc.components.city,
+        state: loc.components.state,
+        zipcode: loc.components.postcode,
+        country: loc.components.country_code,
+      };
+    } else {
+      console.log(`Geocoding returned no result for address: ${this.address}`);
+    }
+  } catch (err) {
+    console.log(`Geocoding failed for "${this.address}": ${err.message}`);
+  }
 
   next();
 });

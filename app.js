@@ -1,6 +1,10 @@
 import express from "express";
 const app = express();
 
+// behind a reverse proxy (Render/Heroku/etc.) — trust the first hop so
+// express-rate-limit can read the real client IP from X-Forwarded-For
+app.set("trust proxy", 1);
+
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import fileUpload from "express-fileupload";
