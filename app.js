@@ -77,14 +77,21 @@ const limiter = rateLimit({
 
 app.use(limiter);
 
-//cors — restrict to configured frontend origins (comma-separated env)
+//cors — allow configured origins (comma-separated env) plus any *.vercel.app
+//deployment (preview URLs change per deploy), and non-browser requests (no Origin).
 const allowedOrigins = (process.env.ALLOWED_ORIGINS || "http://localhost:5173")
   .split(",")
   .map((o) => o.trim())
   .filter(Boolean);
 app.use(
   cors({
-    origin: allowedOrigins,
+    origin: (origin, cb) => {
+      if (!origin) return cb(null, true); // curl / server-to-server / same-origin
+      const ok =
+        allowedOrigins.includes(origin) ||
+        /^https:\/\/[a-z0-9-]+\.vercel\.app$/i.test(origin);
+      return cb(null, ok);
+    },
     credentials: true,
   }),
 );
